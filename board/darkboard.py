@@ -7,7 +7,7 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-app.config['TRAINING_LOG_FILE'] = "./build/darknet/x64/backup/yolov2-obj_log.log"
+app.config['TRAINING_LOG_FILE'] = "../backup/yolov2-obj_log.log"
 
 
 @app.route("/")
