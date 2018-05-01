@@ -173,7 +173,18 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
 
         i = get_current_batch(net);
         printf("\n %d: %f, %f avg, %f rate, %lf seconds, %d images\n", get_current_batch(net), loss, avg_loss, get_current_rate(net), (what_time_is_it_now()-time), i*imgs);
-
+		char buff1[256];
+    	sprintf(buff1, "%s/%s_log.log", backup_directory, base);
+		FILE *fp = fopen(buff1, "a");
+    	if(!fp)
+		{ 
+			file_error(buff1);
+		}
+		else
+		{
+			fprintf(fp,"%d: %f, %f avg, %f rate, %lf seconds, %d images\n", get_current_batch(net), loss, avg_loss, get_current_rate(net), (what_time_is_it_now()-time), i*imgs);
+			fclose(fp);
+		}
 #ifdef OPENCV
 		if(!dont_show)
 			draw_train_loss(img, img_size, avg_loss, max_img_loss, i, net.max_batches);

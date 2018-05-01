@@ -115,6 +115,10 @@ predict_image = lib.network_predict_image
 predict_image.argtypes = [c_void_p, IMAGE]
 predict_image.restype = POINTER(c_float)
 
+train_detector = lib.train_detector
+train_detector.argtypes = [POINTER(c_char), POINTER(c_char), POINTER(c_char), POINTER(c_int), c_int, c_int, c_int]
+train_detector.restype = c_void_p
+
 def classify(net, meta, im):
     out = predict_image(net, im)
     res = []
@@ -131,7 +135,7 @@ def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
     dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, None, 0, pnum, 1)
     num = pnum[0]
     #if (nms): do_nms_obj(dets, num, meta.classes, nms);
-    if (nms): do_nms_sort(dets, num, meta.classes, nms);
+    if (nms): do_nms_sort(dets, num, meta.classes, nms)#;
     
     res = []
     for j in range(num):
@@ -143,6 +147,13 @@ def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
     free_image(im)
     free_detections(dets, num)
     return res
+
+def train(datacfg,cfgfile,weightfile,gpus,ngpus=1,clear=0,dont_show =0):
+    LP_c_int = POINTER(c_int)
+    mygpus = LP_c_int(c_int(0))
+
+    train_detector(datacfg,cfgfile,weightfile,mygpus,ngpus,clear,dont_show)
+    return
     
 if __name__ == "__main__":
     #net = load_net("cfg/densenet201.cfg", "/home/pjreddie/trained/densenet201.weights", 0)
@@ -150,9 +161,10 @@ if __name__ == "__main__":
     #meta = load_meta("cfg/imagenet1k.data")
     #r = classify(net, meta, im)
     #print r[:10]
-    net = load_net("cfg/yolov3.cfg", "yolov3.weights", 0)
-    meta = load_meta("data/coco.data")
-    r = detect(net, meta, "data/dog.jpg", 0.25)
-    print r
+    # net = load_net("cfg/yolov2.cfg", "yolov2.weights", 0)
+    # meta = load_meta("data/coco.data")
+    # r = detect(net, meta, "data/dog.jpg", 0.25)
+    # print (r)
+    train("data/obj.data","cfg/yolov2-obj.cfg","darknet19_448.conv.23",[0])
     
 

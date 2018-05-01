@@ -16,6 +16,7 @@ submission/
 cfg/
 darknet
 .fuse*
+.vscode/
 
 # OS Generated #
 .DS_Store*
