@@ -2,7 +2,6 @@
 *.dSYM
 *.csv
 *.out
-*.png
 *.so
 mnist/
 data/

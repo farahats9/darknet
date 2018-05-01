@@ -1,13 +1,28 @@
 import csv
+import os
 
 import numpy as np
 import plotly.graph_objs as go
 import plotly.offline as py
 from flask import Flask, render_template
+from scipy.interpolate import interp1d
 
 app = Flask(__name__)
+if os.name() == 'nt':
+    app.config['TRAINING_LOG_FILE'] = "./build/darknet/x64/backup/yolov2-obj_log.log"
+else:
+    app.config['TRAINING_LOG_FILE'] = "../backup/yolov2-obj_log.log"
 
-app.config['TRAINING_LOG_FILE'] = "./build/darknet/x64/backup/yolov2-obj_log.log"
+def smooting(data, weight):
+    last = data[0]
+    smoothed = list()
+    for point in data:
+        smoothed_val = last * weight + \
+            (1 - weight) * point  # Calculate smoothed value
+        smoothed.append(smoothed_val)                        # Save it
+        last = smoothed_val
+    ynew = np.array(smoothed)
+    return ynew
 
 
 @app.route("/")
@@ -24,13 +39,21 @@ def hello():
         trace1 = go.Scatter(
             x=x_a,
             y=y_a,
-            mode='lines',
+            mode='markers',
             name='average loss',
             line=dict(
                 color='deepskyblue'
-            )
+            ),
+            opacity=0.5
         )
-        data = [trace1]
+        ynew = smooting(y_a, 0.9)
+        trace2 = go.Scatter(
+            x=x_a,
+            y=ynew,
+            mode='lines',
+            name='smoothed curve',
+        )
+        data = [trace1, trace2]
         config = {'showLink': False, 'displaylogo': False,
                   "modeBarButtonsToRemove": ['sendDataToCloud']}
         layout = go.Layout(
