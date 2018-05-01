@@ -5,7 +5,6 @@ import numpy as np
 import plotly.graph_objs as go
 import plotly.offline as py
 from flask import Flask, render_template
-from scipy.interpolate import interp1d
 
 app = Flask(__name__)
 if os.name() == 'nt':
